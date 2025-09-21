@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SkillForge Quiz</title>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364, #1f4037);
+      background-size: 300% 300%;
+      animation: moveBG 12s ease infinite;
+      transition: background 1s ease;
+      color: #fff;
+      overflow: hidden;
+    }
+    @keyframes moveBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .page {
+      display: none;
+      width: 650px;
+      padding: 25px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(15px);
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+      animation: fadeIn 1s ease;
+    }
+    .active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 { margin-bottom: 20px; }
+    .btn {
+      display: inline-block;
+      margin: 10px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+    .btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+    input {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      width: 80%;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    /* Quiz Page */
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+    .question {
+      margin: 10px 0 20px 0;
+      padding: 20px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+    }
+    .options button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .options button:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    .options button.correct { background: rgba(40,167,69,0.4); }
+    .options button.wrong { background: rgba(220,53,69,0.4); }
+
+    .explanation {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      display: none;
+    }
+
+    /* Score Page */
+    .score { font-size: 24px; margin-bottom: 20px; }
+    .leaderboard {
+      text-align: left;
+      margin-top: 20px;
+    }
+    .leaderboard li { margin: 6px 0; }
+
+    /* Feedback popup */
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 20px 40px;
+      border-radius: 12px;
+      font-size: 22px;
+      z-index: 2000;
+      transition: 0.4s ease;
+      opacity: 0;
+    }
+    .popup.show {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    .popup.correct { background: rgba(40, 167, 69, 0.9); }
+    .popup.wrong { background: rgba(220, 53, 69, 0.9); }
+  </style>
+</head>
+<body>
+
+  <!-- Page 1: Welcome -->
+  <div id="welcome" class="page active">
+    <img src="C:\Users\kesav\Downloads\Skillforge Logo.jpeg" alt="Logo" style="height:80px;">
+    <h1>SkillForge Quiz</h1>
+    <input type="text" id="playerName" placeholder="Enter your name" />
+    <br>
+    <button class="btn" onclick="startQuiz()">Start Quiz</button>
+    <button class="btn" onclick="showPage('scorePage')">View Leaderboard</button>
+  </div>
+
+  <!-- Page 2: Quiz -->
+  <div id="quizPage" class="page">
+    <div class="question-header">
+      <div id="question-number">Question 1/1</div>
+      <div>SkillForge Quiz 🚀</div>
+    </div>
+    <div id="question" class="question">
+      Murugappa Group received ₹10,00,000 as loan from a bank. According to the Golden Rules of Accounting, how should this transaction be recorded?
+    </div>
+    <div class="options">
+      <button onclick="checkAnswer(this, 'A')">A) Debit Bank A/c, Credit Loan A/c</button>
+      <button onclick="checkAnswer(this, 'B')">B) Debit Loan A/c, Credit Bank A/c</button>
+      <button onclick="checkAnswer(this, 'C')">C) Debit Capital A/c, Credit Bank A/c</button>
+      <button onclick="checkAnswer(this, 'D')">D) Debit Cash A/c, Credit Machinery A/c</button>
+    </div>
+    <div class="explanation" id="explanation"></div>
+  </div>
+
+  <!-- Page 3: Score + Leaderboard -->
+  <div id="scorePage" class="page">
+    <h1>Quiz Completed 🎉</h1>
+    <div class="score" id="finalScore">Your Score: 0</div>
+    <h2>Leaderboard</h2>
+    <ol class="leaderboard" id="leaderboard">
+      <!-- Players will be added here -->
+    </ol>
+    <button class="btn" onclick="showPage('welcome')">Back to Home</button>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup" class="popup"></div>
+
+  <script>
+    let score = 0;
+    let answered = false;
+    let player = "";
+    const leaderboard = [];
+
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function startQuiz() {
+      player = document.getElementById("playerName").value.trim();
+      if (!player) {
+        alert("Please enter your name!");
+        return;
+      }
+      score = 0;
+      answered = false;
+      showPage('quizPage');
+    }
+
+    function showPopup(message, type) {
+      const popup = document.getElementById("popup");
+      popup.innerHTML = message;
+      popup.className = "popup show " + type;
+      setTimeout(() => popup.className = "popup", 2000);
+    }
+
+    function checkAnswer(button, option) {
+      if (answered) return;
+      answered = true;
+
+      const explanation = document.getElementById("explanation");
+      const buttons = document.querySelectorAll(".options button");
+
+      buttons.forEach(btn => btn.disabled = true);
+
+      let message = "";
+      if (option === 'A') {
+        button.classList.add("correct");
+        message = "✅ Correct! Debit Bank A/c (asset increase), Credit Loan A/c (liability increase).";
+        score++;
+        showPopup("🎉 Cheers! Correct Answer!", "correct");
+        document.body.style.background = "linear-gradient(135deg,#28a745,#3ddc84)";
+      } else {
+        button.classList.add("wrong");
+        if (option === 'B') message = "❌ Loan is a liability, it should be credited.";
+        if (option === 'C') message = "❌ Capital A/c is not involved here.";
+        if (option === 'D') message = "❌ No machinery is being bought here.";
+        showPopup("❌ Wrong! Keep trying!", "wrong");
+        document.body.style.background = "linear-gradient(135deg,#dc3545,#ff6b6b)";
+      }
+
+      explanation.innerHTML = message;
+      explanation.style.display = "block";
+
+      setTimeout(() => {
+        document.getElementById("finalScore").innerText = player + "'s Score: " + score;
+        leaderboard.push({ name: player, score: score });
+        updateLeaderboard();
+        document.body.style.background = ""; // reset
+        showPage("scorePage");
+      }, 2500);
+    }
+
+    function updateLeaderboard() {
+      const board = document.getElementById("leaderboard");
+      board.innerHTML = "";
+      leaderboard.sort((a,b) => b.score - a.score);
+      leaderboard.forEach(entry => {
+        const li = document.createElement("li");
+        li.textContent = entry.name + " — " + entry.score;
+        board.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>

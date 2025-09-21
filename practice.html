@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SkillForge Quiz</title>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364, #1f4037);
+      background-size: 300% 300%;
+      animation: moveBG 12s ease infinite;
+      color: #fff;
+      overflow: hidden;
+    }
+    @keyframes moveBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .page {
+      display: none;
+      width: 700px;
+      padding: 25px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(15px);
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+      animation: fadeIn 1s ease;
+    }
+    .active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1 { margin-bottom: 20px; }
+    .btn {
+      display: inline-block;
+      margin: 10px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+    .btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+    input, select {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      width: 80%;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    .avatars {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .avatars img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .avatars img.selected {
+      border-color: #00ffcc;
+      transform: scale(1.1);
+    }
+    .question-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px; font-size: 16px;
+    }
+    .question {
+      margin: 10px 0 20px 0;
+      padding: 20px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .options button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .options button:hover { background: rgba(255,255,255,0.3); }
+    .options button.correct { background: rgba(40,167,69,0.4); }
+    .options button.wrong { background: rgba(220,53,69,0.4); }
+    .explanation { margin-top: 15px; padding: 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.12); display: none; text-align: left; }
+    .score { font-size: 24px; margin-bottom: 20px; }
+    .leaderboard { text-align: left; margin-top: 20px; }
+    .leaderboard li { margin: 6px 0; }
+    .popup {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 20px 40px;
+      border-radius: 12px;
+      font-size: 22px;
+      z-index: 2000;
+      transition: 0.4s ease;
+      opacity: 0;
+    }
+    .popup.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    .popup.correct { background: rgba(40, 167, 69, 0.9); }
+    .popup.wrong { background: rgba(220, 53, 69, 0.9); }
+    .hearts { display: flex; gap: 5px; }
+    .hearts i { font-size: 22px; color: red; }
+    .progress { margin-top: 8px; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <!-- Page 1: Welcome -->
+  <div id="welcome" class="page active">
+    <img src="C:\Users\kesav\Downloads\Skillforge Logo.jpeg" alt="Logo" style="height:80px;">
+    <h1>SkillForge Quiz</h1>
+    <input type="text" id="playerName" placeholder="Enter your name" />
+    <input type="email" id="playerEmail" placeholder="Enter your email" />
+    <input type="password" id="playerPass" placeholder="Enter your password" />
+    <br>
+    <select id="gender">
+      <option value="">Select Gender</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+    <div class="avatars" id="avatarContainer"></div>
+    <button class="btn" onclick="startQuiz()">Start Quiz</button>
+    <button class="btn" onclick="showPage('scorePage')">View Leaderboard</button>
+  </div>
+
+  <!-- Page 2: Quiz -->
+  <div id="quizPage" class="page">
+    <div class="question-header">
+      <div id="question-number"></div>
+      <div class="hearts" id="hearts">
+        <i class='bx bxs-heart'></i>
+        <i class='bx bxs-heart'></i>
+        <i class='bx bxs-heart'></i>
+      </div>
+    </div>
+    <div id="question" class="question"></div>
+    <div class="options" id="options"></div>
+    <div class="explanation" id="explanation"></div>
+    
+    <!-- Progress text + Pie chart -->
+    <div class="progress" id="progressText"></div>
+    <canvas id="progressChart" width="200" height="200"></canvas>
+  </div>
+
+  <!-- Page 3: Score + Leaderboard -->
+  <div id="scorePage" class="page">
+    <h1>Quiz Completed 🎉</h1>
+    <div class="score" id="finalScore">Your Score: 0</div>
+    <div id="encouragement"></div>
+    <h2>Leaderboard</h2>
+    <ol class="leaderboard" id="leaderboard"></ol>
+    <button class="btn" onclick="showPage('welcome')">Back to Home</button>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup" class="popup"></div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    let score = 0, currentQ = 0, player = "", lives = 3, avatar = "";
+    const leaderboard = [];
+
+    // avatars
+    const maleAvatars = [
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=1",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=2",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=3",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=4"
+    ];
+    const femaleAvatars = [
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=5",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=6",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=7",
+      "https://api.dicebear.com/7.x/adventurer/svg?seed=8"
+    ];
+
+    document.getElementById("gender").addEventListener("change", e => {
+      const gender = e.target.value;
+      const cont = document.getElementById("avatarContainer");
+      cont.innerHTML = "";
+      let list = gender === "male" ? maleAvatars : femaleAvatars;
+      list.forEach(url => {
+        const img = document.createElement("img");
+        img.src = url;
+        img.onclick = () => {
+          document.querySelectorAll(".avatars img").forEach(i => i.classList.remove("selected"));
+          img.classList.add("selected");
+          avatar = url;
+        };
+        cont.appendChild(img);
+      });
+    });
+
+    const questions = [
+      {
+        q: "Which one best describes the Money Measurement Concept in accounting?",
+        options: {
+          A: "All transactions are recorded whether monetary or non-monetary",
+          B: "Only transactions that can be expressed in money are recorded in the books",
+          C: "Monetary values are measured using historic cost only",
+          D: "Monetary values must be converted to a single currency before recording"
+        },
+        correct: "B",
+        hint: "If it can’t be measured in rupees, it generally won’t enter the books.",
+        explanation: {
+          A: "❌ Non-monetary events aren’t recorded.",
+          B: "✅ Correct → Only measurable monetary transactions are recorded.",
+          C: "❌ Historic cost is valuation, not measurement concept.",
+          D: "❌ Conversion applies to foreign currency only."
+        }
+      },
+      {
+        q: "SKILLforge sells annual subscriptions for ₹1,20,000 (12 months). Revenue is fully recognised on 1-Apr. What is correct under accrual accounting?",
+        options: {
+          A: "Recognise ₹1,20,000 immediately",
+          B: "Treat as deferred revenue and recognise ₹10,000 monthly",
+          C: "Record as capital contribution",
+          D: "Record as loan (liability)"
+        },
+        correct: "B",
+        hint: "Revenue is recognised when earned, not when cash is received.",
+        explanation: {
+          A: "❌ Cash-basis, not accrual.",
+          B: "✅ Correct → recognise evenly over 12 months.",
+          C: "❌ Not equity.",
+          D: "❌ Not a loan."
+        }
+      }
+      // add more questions here
+    ];
+
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function startQuiz() {
+      player = document.getElementById("playerName").value.trim();
+      if (!player || !document.getElementById("playerEmail").value || !document.getElementById("playerPass").value || !avatar) {
+        alert("Fill all fields and select avatar!");
+        return;
+      }
+      score = 0; currentQ = 0; lives = 3;
+      document.getElementById("hearts").innerHTML = "<i class='bx bxs-heart'></i><i class='bx bxs-heart'></i><i class='bx bxs-heart'></i>";
+      showPage('quizPage');
+      loadQuestion();
+    }
+
+    // Chart.js pie chart
+    let ctx = document.getElementById("progressChart").getContext("2d");
+    let progressChart = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: ["Completed", "Remaining"],
+        datasets: [{
+          data: [0, 100],
+          backgroundColor: ["#00ffcc", "#444"],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: false,
+        plugins: { legend: { display: false } },
+        cutout: "70%"
+      }
+    });
+
+    function loadQuestion() {
+      if (currentQ >= questions.length) { endQuiz(); return; }
+      const qObj = questions[currentQ];
+      document.getElementById("question-number").innerText = `Q ${currentQ + 1}/${questions.length}`;
+      document.getElementById("question").innerText = qObj.q;
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+      Object.keys(qObj.options).forEach(k => {
+        const btn = document.createElement("button");
+        btn.innerText = `${k}) ${qObj.options[k]}`;
+        btn.onclick = () => checkAnswer(btn, k);
+        optionsDiv.appendChild(btn);
+      });
+      document.getElementById("explanation").style.display = "none";
+
+      let percent = Math.round((currentQ / questions.length) * 100);
+      document.getElementById("progressText").innerText = `Completion: ${percent}%`;
+      progressChart.data.datasets[0].data = [percent, 100 - percent];
+      progressChart.update();
+    }
+
+    function checkAnswer(button, option) {
+      const qObj = questions[currentQ];
+      if (option === qObj.correct) {
+        button.classList.add("correct");
+        score++;
+        showPopup("🎉 Correct!", "correct");
+        setTimeout(() => { currentQ++; loadQuestion(); }, 900);
+      } else {
+        button.classList.add("wrong");
+        button.style.display = "none";
+        lives--;
+        updateHearts();
+        if (lives <= 0) { endQuiz(); return; }
+        document.getElementById("explanation").innerHTML = "❌ Wrong! 💡 Hint: " + qObj.hint;
+        document.getElementById("explanation").style.display = "block";
+        showPopup("❌ Wrong!", "wrong");
+      }
+    }
+
+    function updateHearts() {
+      const h = document.getElementById("hearts");
+      h.innerHTML = "";
+      for (let i = 0; i < lives; i++) h.innerHTML += "<i class='bx bxs-heart'></i>";
+    }
+
+    function endQuiz() {
+      document.getElementById("finalScore").innerText = `${player}'s Score: ${score}`;
+      let msg = score === questions.length ? "🏆 Perfect Score!" :
+                score >= questions.length*0.7 ? "🔥 Great job!" :
+                score >= questions.length*0.4 ? "👍 Keep practicing!" : "💡 Don’t worry, keep learning!";
+      document.getElementById("encouragement").innerText = msg;
+      leaderboard.push({ name: player, score });
+      leaderboard.sort((a,b)=>b.score-a.score);
+      const board = document.getElementById("leaderboard");
+      board.innerHTML = "";
+      leaderboard.forEach(e => {
+        const li = document.createElement("li");
+        li.textContent = `${e.name} — ${e.score}`;
+        board.appendChild(li);
+      });
+      showPage("scorePage");
+    }
+
+    function showPopup(message, type) {
+      const popup = document.getElementById("popup");
+      popup.innerHTML = message;
+      popup.className = "popup show " + type;
+      setTimeout(() => { popup.className = "popup"; }, 1500);
+    }
+  </script>
+</body>
+</html>

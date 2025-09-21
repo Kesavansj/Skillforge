@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Glassmorphism Quiz</title>
+  <style>
+    /* Background gradient */
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364, #1f4037);
+      background-size: 300% 300%;
+      animation: moveBG 12s ease infinite;
+    }
+    @keyframes moveBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Glassmorphism effect */
+    .quiz-container {
+      width: 520px;
+      padding: 25px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      animation: fadeIn 1s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .quiz-header img {
+      height: 70px;
+      margin-bottom: 10px;
+      animation: floatLogo 3s ease-in-out infinite;
+    }
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .question {
+      font-size: 18px;
+      margin: 20px 0;
+      color: #fff;
+    }
+
+    .options button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .options button:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    /* Correct/Wrong styling */
+    .options button.correct {
+      background: rgba(40, 167, 69, 0.3);
+      border: 1px solid #28a745;
+    }
+    .options button.wrong {
+      background: rgba(220, 53, 69, 0.3);
+      border: 1px solid #dc3545;
+    }
+
+    .explanation {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: none;
+      animation: slideDown 0.5s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+    <div class="quiz-header">
+      <img src="logo.png" alt="SkillForge Logo">
+      <h2 style="color:white;">SKILLforge Quiz 🚀</h2>
+    </div>
+
+    <div class="question">
+      Murugappa Group received ₹10,00,000 as loan from a bank. According to the Golden Rules of Accounting, how should this transaction be recorded?
+    </div>
+
+    <div class="options">
+      <button onclick="checkAnswer(this, 'A')">A) Debit Bank A/c, Credit Loan A/c</button>
+      <button onclick="checkAnswer(this, 'B')">B) Debit Loan A/c, Credit Bank A/c</button>
+      <button onclick="checkAnswer(this, 'C')">C) Debit Capital A/c, Credit Bank A/c</button>
+      <button onclick="checkAnswer(this, 'D')">D) Debit Cash A/c, Credit Machinery A/c</button>
+    </div>
+
+    <div class="explanation" id="explanation"></div>
+  </div>
+
+  <script>
+    function checkAnswer(button, option) {
+      const explanation = document.getElementById("explanation");
+      const buttons = document.querySelectorAll(".options button");
+
+      buttons.forEach(btn => btn.disabled = true);
+
+      let message = "";
+      switch(option) {
+        case 'A':
+          button.classList.add("correct");
+          message = "✅ Correct! Debit Bank A/c (asset increase), Credit Loan A/c (liability increase).";
+          break;
+        case 'B':
+          button.classList.add("wrong");
+          message = "❌ Loan is a liability, it should be credited. Bank is increasing, so it must be debited.";
+          break;
+        case 'C':
+          button.classList.add("wrong");
+          message = "❌ Capital A/c is not involved here. Loan is a liability, not capital.";
+          break;
+        case 'D':
+          button.classList.add("wrong");
+          message = "❌ No machinery is being bought, this is just a bank loan.";
+          break;
+      }
+
+      explanation.innerHTML = message;
+      explanation.style.display = "block";
+    }
+  </script>
+
+</body>
+</html>
